@@ -1,0 +1,3 @@
+[submodule "mensa"]
+	path = mensa
+	url = git@github.com:brantsch/mensa.git
