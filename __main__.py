@@ -11,7 +11,7 @@ List contents of canteen menu of the THI mensa.
 """
 
 dishes = None
-cache_path = os.environ['HOME']+"/.config/hunger/"
+cache_path = os.environ['HOME']+"/.cache/hunger/"
 cache_file = cache_path + "cache"
 
 def update():
