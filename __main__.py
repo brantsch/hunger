@@ -7,9 +7,6 @@ import os
 import pickle
 from datetime import date
 
-description = """
-"""
-
 dishes = None
 cache_path = os.environ['HOME']+"/.cache/hunger/"
 cache_file = cache_path + "cache"
@@ -31,7 +28,6 @@ def load():
 		with open(cache_file,'rb') as cache:
 			dishes = pickle.load(cache)
 	except FileNotFoundError:
-		#update()
 		pass
 	except:
 		raise
@@ -43,7 +39,7 @@ def list_all():
 def list_today():
 	list_for_date(date.today())
 
-def list_for_date(thedate):
+def list_for_date(thedate,allow_update=True):
 	weekday = thedate.weekday()
 	if weekday >= 5:
 		print("Error: given date is on a weekend. Please try {0} or {1} instead.".format(\
@@ -52,15 +48,23 @@ def list_for_date(thedate):
 		),file=sys.stderr)
 		exit(1)
 	global dishes
-	need_update = True
-	if dishes: 
-		for dish in dishes:
-			if dish.date == thedate:
-				need_update = False
+	need_update = False
+	if dishes:
+		if thedate in dishes: 
+			for dish in dishes[thedate]:
 				print(dish)
-	if need_update:
-		print("No entry found for date {0}. Will now update cache. Try again after cache is updated.".format(thedate))
+		elif thedate > max(dishes.dates()) or thedate < min(dishes.dates()):
+			if allow_update:
+				need_update = True
+			else:
+				print("No data available for given date. Giving up.",file=sys.stderr)
+				exit(1)
+	else:
+		need_update = True
+	if need_update and allow_update:
+		print("No entry found for date {0}. Will now update cache and try again.".format(thedate))
 		update()
+		list_for_date(thedate,allow_update=False)
 	
 def main():
 	parser = argparse.ArgumentParser("List contents of canteen menu of the THI mensa.")
