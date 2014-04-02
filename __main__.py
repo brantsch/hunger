@@ -6,6 +6,7 @@ import argparse
 import os
 import pickle
 from datetime import date
+import re
 
 dishes = None
 cache_path = os.environ['HOME']+"/.cache/hunger/"
@@ -83,13 +84,19 @@ def main():
 	if args.list_all:
 		list_all()
 	elif args.date:
-		year, month, day = map(lambda x: int(x),args.date.split('-'))
-		try:
-			d = date(year, month, day)
-		except ValueError:	
-			print("Invalid date!",file=sys.stderr)
-			exit(1)
-		list_for_date(d)
+		thedate = None
+		match = re.match("\s*\+(\d+)\s*",args.date)
+		if match:
+			date_offset = int(match.group(0))
+			thedate = date.fromordinal(date.today().toordinal()+date_offset)
+		if not thedate:
+			try:
+				year, month, day = map(lambda x: int(x),args.date.split('-'))
+				thedate = date(year, month, day)
+			except ValueError:	
+				print("Invalid date!",file=sys.stderr)
+				exit(1)
+		list_for_date(thedate)
 	else:
 		list_today()
 	
