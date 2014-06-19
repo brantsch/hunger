@@ -8,36 +8,36 @@ import pickle
 from datetime import date
 import re
 
-dishes = None
+menu = None
 cache_path = os.environ['HOME']+"/.cache/hunger/"
 cache_file = cache_path + "cache"
 
 def update():
 	os.makedirs(cache_path,exist_ok=True)
-	global dishes
-	dishes = parse(fetch())
+	global menu
+	menu = parse(fetch())
 	with open(cache_file,'wb') as cache:
-		pickle.dump(dishes,cache)
+		pickle.dump(menu,cache)
 	print("hunger successfully updated its cache")
 
 def drop_cache():
 	os.remove(cache_file)
 
 def load():
-	global dishes
+	global menu
 	try:
 		with open(cache_file,'rb') as cache:
-			dishes = pickle.load(cache)
+			menu = pickle.load(cache)
 	except FileNotFoundError:
 		pass
 	except:
 		raise
 
 def list_all():
-	dates = [date for date in dishes]
+	dates = [date for date in menu]
 	dates.sort()
 	for date in dates:
-		for dish in dishes[date]:
+		for dish in menu[date]:
 			print(dish)
 
 def list_today():
@@ -51,13 +51,13 @@ def list_for_date(thedate,allow_update=True):
 			date.fromordinal(thedate.toordinal()-(weekday-4))\
 		),file=sys.stderr)
 		exit(1)
-	global dishes
+	global menu
 	need_update = False
-	if dishes:
-		if thedate in dishes: 
-			for dish in dishes[thedate]:
+	if menu:
+		if thedate in menu: 
+			for dish in menu[thedate]:
 				print(dish)
-		elif thedate > max(dishes.dates()) or thedate < min(dishes.dates()):
+		elif thedate > max(menu.dates()) or thedate < min(menu.dates()):
 			if allow_update:
 				need_update = True
 			else:
