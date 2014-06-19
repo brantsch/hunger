@@ -34,8 +34,11 @@ def load():
 		raise
 
 def list_all():
-	for dish in dishes:
-		print(dish)
+	dates = [date for date in dishes]
+	dates.sort()
+	for date in dates:
+		for dish in dishes[date]:
+			print(dish)
 
 def list_today():
 	list_for_date(date.today())
