@@ -2,6 +2,7 @@
 import sys
 from mensa.parser import parse
 from mensa.util import fetch
+import dish_printer
 import argparse
 import os
 import pickle
@@ -35,23 +36,28 @@ def load():
 
 def list_all():
 	dates = sorted(menu.dates())
-	for date in dates:
-		list_for_date(date)
+	list_for_dates(*dates)
 
 def list_today():
-	list_for_date(date.today())
+	list_for_dates(date.today())
 
-def list_for_date(thedate,allow_update=True):
-	weekday = thedate.weekday()
-	if weekday >= 5:
-		print("Error: given date is on a weekend. Please try {0} or {1} instead.".format(\
-			date.fromordinal(thedate.toordinal()+(7-weekday)),\
-			date.fromordinal(thedate.toordinal()-(weekday-4))\
-		),file=sys.stderr)
-		exit(1)
-	if menu and thedate in menu:
-		for dish in menu[thedate]:
-			print(dish)
+def list_for_dates(*dates,allow_update=True):
+	def __check_date(thedate):
+		weekday = thedate.weekday()
+		if weekday >= 5:
+			print("Error: given date is on a weekend. Please try {0} or {1} instead.".format(\
+				date.fromordinal(thedate.toordinal()+(7-weekday)),\
+				date.fromordinal(thedate.toordinal()-(weekday-4))\
+			),file=sys.stderr)
+			exit(1)
+		else:
+			return thedate in menu
+	if menu and all(map(__check_date,dates)):
+		table = dish_printer.Table()
+		for thedate in dates:
+			for dish in menu[thedate]:
+				table.add(dish)
+		table.print()
 	elif allow_update:
 		print("No entry found for date {0}. Will now update cache and try again.".format(thedate))
 		update()
