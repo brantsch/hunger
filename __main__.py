@@ -34,11 +34,9 @@ def load():
 		raise
 
 def list_all():
-	dates = [date for date in menu]
-	dates.sort()
+	dates = sorted(menu.dates())
 	for date in dates:
-		for dish in menu[date]:
-			print(dish)
+		list_for_date(date)
 
 def list_today():
 	list_for_date(date.today())
