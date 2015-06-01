@@ -35,30 +35,30 @@ def load():
 
 def list_all():
 	dates = sorted(menu.dates())
-	for date in dates:
-		list_for_date(date)
+	list_for_dates(*dates)
 
 def list_today():
-	list_for_date(date.today())
+	list_for_dates(date.today())
 
-def list_for_date(thedate,allow_update=True):
-	weekday = thedate.weekday()
-	if weekday >= 5:
-		print("Error: given date is on a weekend. Please try {0} or {1} instead.".format(\
-			date.fromordinal(thedate.toordinal()+(7-weekday)),\
-			date.fromordinal(thedate.toordinal()-(weekday-4))\
-		),file=sys.stderr)
-		exit(1)
-	if menu and thedate in menu:
-		for dish in menu[thedate]:
-			print(dish)
-	elif allow_update:
-		print("No entry found for date {0}. Will now update cache and try again.".format(thedate))
-		update()
-		list_for_date(thedate,allow_update=False)
-	else:
-		print("No data available for given date. Giving up.",file=sys.stderr)
-		exit(1)
+def list_for_dates(*dates,allow_update=True):
+	for thedate in dates:
+		weekday = thedate.weekday()
+		if weekday >= 5:
+			print("Error: given date is on a weekend. Please try {0} or {1} instead.".format(\
+				date.fromordinal(thedate.toordinal()+(7-weekday)),\
+				date.fromordinal(thedate.toordinal()-(weekday-4))\
+			),file=sys.stderr)
+			exit(1)
+		if menu and thedate in menu:
+			for dish in menu[thedate]:
+				print(dish)
+		elif allow_update:
+			print("No entry found for date {0}. Will now update cache and try again.".format(thedate))
+			update()
+			list_for_date(thedate,allow_update=False)
+		else:
+			print("No data available for given date. Giving up.",file=sys.stderr)
+			exit(1)
 
 def main():
 	parser = argparse.ArgumentParser("List contents of canteen menu of the THI mensa.")
