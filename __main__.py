@@ -49,25 +49,17 @@ def list_for_date(thedate,allow_update=True):
 			date.fromordinal(thedate.toordinal()-(weekday-4))\
 		),file=sys.stderr)
 		exit(1)
-	global menu
-	need_update = False
-	if menu:
-		if thedate in menu: 
-			for dish in menu[thedate]:
-				print(dish)
-		elif thedate > max(menu.dates()) or thedate < min(menu.dates()):
-			if allow_update:
-				need_update = True
-			else:
-				print("No data available for given date. Giving up.",file=sys.stderr)
-				exit(1)
-	else:
-		need_update = True
-	if need_update and allow_update:
+	if menu and thedate in menu:
+		for dish in menu[thedate]:
+			print(dish)
+	elif allow_update:
 		print("No entry found for date {0}. Will now update cache and try again.".format(thedate))
 		update()
 		list_for_date(thedate,allow_update=False)
-	
+	else:
+		print("No data available for given date. Giving up.",file=sys.stderr)
+		exit(1)
+
 def main():
 	parser = argparse.ArgumentParser("List contents of canteen menu of the THI mensa.")
 	parser.add_argument('--force-update','-u',action='store_true',help="Force update of the cache and exit.")
