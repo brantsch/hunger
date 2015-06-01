@@ -61,7 +61,7 @@ def list_for_dates(*dates,allow_update=True):
 	elif allow_update:
 		print("No entry found for date {0}. Will now update cache and try again.".format(thedate))
 		update()
-		list_for_date(thedate,allow_update=False)
+		list_for_dates(dates,allow_update=False)
 	else:
 		print("No data available for given date. Giving up.",file=sys.stderr)
 		exit(1)
@@ -95,7 +95,7 @@ def main():
 			except ValueError:	
 				print("Invalid date!",file=sys.stderr)
 				exit(1)
-		list_for_date(thedate)
+		list_for_dates(thedate)
 	else:
 		list_today()
 	
