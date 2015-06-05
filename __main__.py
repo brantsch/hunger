@@ -59,9 +59,10 @@ def list_for_dates(*dates,allow_update=True):
 				table.add(dish)
 		table.print()
 	elif allow_update:
-		print("No entry found for date {0}. Will now update cache and try again.".format(thedate))
+		
+		print("No data for date(s) {0}. Will now update cache and try again.".format(", ".join(map(str,dates))), file=sys.stderr)
 		update()
-		list_for_dates(dates,allow_update=False)
+		list_for_dates(*dates,allow_update=False)
 	else:
 		print("No data available for given date. Giving up.",file=sys.stderr)
 		exit(1)
