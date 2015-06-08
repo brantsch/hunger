@@ -2,6 +2,7 @@
 import sys
 from mensa.parser import parse
 from mensa.util import fetch
+import dish_printer
 import argparse
 import os
 import pickle
@@ -41,7 +42,7 @@ def list_today():
 	list_for_dates(date.today())
 
 def list_for_dates(*dates,allow_update=True):
-	for thedate in dates:
+	def __check_date(thedate):
 		weekday = thedate.weekday()
 		if weekday >= 5:
 			print("Error: given date is on a weekend. Please try {0} or {1} instead.".format(\
@@ -49,16 +50,21 @@ def list_for_dates(*dates,allow_update=True):
 				date.fromordinal(thedate.toordinal()-(weekday-4))\
 			),file=sys.stderr)
 			exit(1)
-		if menu and thedate in menu:
-			for dish in menu[thedate]:
-				print(dish)
-		elif allow_update:
-			print("No entry found for date {0}. Will now update cache and try again.".format(thedate))
-			update()
-			list_for_date(thedate,allow_update=False)
 		else:
-			print("No data available for given date. Giving up.",file=sys.stderr)
-			exit(1)
+			return thedate in menu
+	if menu and all(map(__check_date,dates)):
+		table = dish_printer.Table()
+		for thedate in dates:
+			for dish in menu[thedate]:
+				table.add(dish)
+		table.print()
+	elif allow_update:
+		print("No data for date(s) {0}. Will now update cache and try again.".format(", ".join(map(str,dates))), file=sys.stderr)
+		update()
+		list_for_dates(*dates,allow_update=False)
+	else:
+		print("No data available for given date. Giving up.",file=sys.stderr)
+		exit(1)
 
 def main():
 	parser = argparse.ArgumentParser("List contents of canteen menu of the THI mensa.")
@@ -89,7 +95,7 @@ def main():
 			except ValueError:	
 				print("Invalid date!",file=sys.stderr)
 				exit(1)
-		list_for_date(thedate)
+		list_for_dates(thedate)
 	else:
 		list_today()
 	
