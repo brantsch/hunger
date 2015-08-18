@@ -33,14 +33,14 @@ def load():
 	except:
 		raise
 
-def list_all():
+def list_all(highlight=None):
 	dates = sorted(menu.dates())
-	list_for_dates(*dates)
+	list_for_dates(*dates,highlight=highlight)
 
-def list_today():
-	list_for_dates(date.today())
+def list_today(highlight=None):
+	list_for_dates(date.today(),highlight=highlight)
 
-def list_for_dates(*dates,allow_update=True):
+def list_for_dates(*dates,allow_update=True,highlight=None):
 	def __check_date(thedate):
 		weekday = thedate.weekday()
 		if weekday >= 5:
@@ -56,11 +56,11 @@ def list_for_dates(*dates,allow_update=True):
 		for thedate in dates:
 			for dish in menu[thedate]:
 				table.add(dish)
-		table.print()
+		table.print(highlight)
 	elif allow_update:
 		print("No data for date(s) {0}. Will now update cache and try again.".format(", ".join(map(str,dates))), file=sys.stderr)
 		update()
-		list_for_dates(*dates,allow_update=False)
+		list_for_dates(*dates,allow_update=False,highlight=highlight)
 	else:
 		print("No data available for given date. Giving up.",file=sys.stderr)
 		exit(1)
@@ -71,6 +71,7 @@ def main(argv):
 	parser.add_argument('--drop-cache',action='store_true',help="Delete cache file.")
 	parser.add_argument('--list-all',action='store_true',help="List all available dishes.")
 	parser.add_argument('--date','-d',type=str,help="Show menu for date given as YYYY-MM-DD")
+	parser.add_argument('--highlight', '-H', type=set, help="List of flags (e.g. V for 'vegetarian') to highlight in output")
 	args = parser.parse_args(argv)
 	if args.drop_cache:
 		drop_cache()
@@ -80,7 +81,7 @@ def main(argv):
 		exit()
 	load()
 	if args.list_all:
-		list_all()
+		list_all(args.highlight)
 	elif args.date:
 		thedate = None
 		match = re.match("\s*\+(\d+)\s*",args.date)
@@ -94,6 +95,6 @@ def main(argv):
 			except ValueError:	
 				print("Invalid date!",file=sys.stderr)
 				exit(1)
-		list_for_dates(thedate)
+		list_for_dates(thedate, highlight=args.highlight)
 	else:
-		list_today()
+		list_today(args.highlight)
